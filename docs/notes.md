@@ -74,10 +74,109 @@ Data warehouse project for Spotify data analysis.
 - Multiple tracks can share the same artist_id, album_id (one-to-many relationships)
 - Dates are in ISO format (YYYY-MM-DD)
 
+## Star Schema Design (Logical Model)
+
+### Dimension Tables
+
+#### DimArtist
+Stores unique artist information.
+- `ArtistKey` (int, PK) - Surrogate key
+- `ArtistName` (nvarchar) - Artist name
+- `ArtistPopularity` (int) - Current popularity score (0-100)
+- `ArtistFollowers` (bigint) - Number of followers
+- `ArtistGenres` (nvarchar) - Comma-separated or JSON list of genres
+
+**Business Key:** ArtistName (no artist_id in source data)
+
+---
+
+#### DimAlbum
+Stores unique album information.
+- `AlbumKey` (int, PK) - Surrogate key
+- `SpotifyAlbumId` (nvarchar) - Spotify album identifier
+- `AlbumName` (nvarchar) - Album name
+- `ArtistKey` (int, FK) - Reference to DimArtist
+- `AlbumType` (nvarchar) - Type: album, single, compilation
+- `AlbumTotalTracks` (int) - Total tracks on album
+- `ReleaseDateKey` (int, FK) - Reference to DimDate
+
+**Business Key:** SpotifyAlbumId
+
+---
+
+#### DimTrack
+Stores unique track information (attributes that don't change).
+- `TrackKey` (int, PK) - Surrogate key
+- `SpotifyTrackId` (nvarchar) - Spotify track identifier
+- `TrackName` (nvarchar) - Track name
+- `TrackNumber` (int) - Position on album
+- `TrackDurationMs` (int) - Duration in milliseconds
+- `Explicit` (bit) - Explicit content flag
+
+**Business Key:** SpotifyTrackId
+
+---
+
+#### DimDate
+Standard date dimension for time-based analysis.
+- `DateKey` (int, PK) - Format: YYYYMMDD
+- `Date` (date) - Full date
+- `Year` (int) - Year
+- `Month` (int) - Month (1-12)
+- `MonthName` (nvarchar) - Month name
+- `Quarter` (int) - Quarter (1-4)
+- `DayOfWeek` (int) - Day of week (1-7)
+- `DayName` (nvarchar) - Day name
+
+**Business Key:** Date
+
+---
+
+### Fact Table
+
+#### FactTrack
+Central fact table storing track metrics and audio features.
+- `FactTrackKey` (bigint, PK) - Surrogate key
+- `TrackKey` (int, FK) - Reference to DimTrack
+- `ArtistKey` (int, FK) - Reference to DimArtist
+- `AlbumKey` (int, FK) - Reference to DimAlbum
+- `ReleaseDateKey` (int, FK) - Reference to DimDate
+
+**Measures (Metrics):**
+- `TrackPopularity` (int) - Popularity score at time of load (0-100)
+- `Energy` (float) - Audio feature (0.0-1.0) *[if available in source]*
+- `Danceability` (float) - Audio feature (0.0-1.0) *[if available]*
+- `Valence` (float) - Audio feature (0.0-1.0) *[if available]*
+- `Loudness` (float) - Audio feature in dB *[if available]*
+- `Tempo` (float) - BPM *[if available]*
+- `Acousticness` (float) - Audio feature (0.0-1.0) *[if available]*
+- `Instrumentalness` (float) - Audio feature (0.0-1.0) *[if available]*
+- `Liveness` (float) - Audio feature (0.0-1.0) *[if available]*
+- `Speechiness` (float) - Audio feature (0.0-1.0) *[if available]*
+
+**Grain:** One row per unique track (SpotifyTrackId)
+
+**Note:** Audio features (energy, danceability, etc.) are not present in current CSVs. These columns are included in the design for future enhancement if audio feature data becomes available.
+
+---
+
+### Relationships
+```
+FactTrack -----> DimTrack (TrackKey)
+FactTrack -----> DimArtist (ArtistKey)
+FactTrack -----> DimAlbum (AlbumKey)
+FactTrack -----> DimDate (ReleaseDateKey)
+DimAlbum  -----> DimArtist (ArtistKey)
+DimAlbum  -----> DimDate (ReleaseDateKey)
+```
+
+---
+
 ## Next Steps
 1. ✅ Inspect track_data_final.csv structure
-2. Inspect spotify_data_clean.csv (when available)
-3. Design dimensional model (schema.sql)
-4. Create C# ETL console application
-5. Implement data loading process
+2. ✅ Inspect spotify_data_clean.csv structure
+3. ✅ Design star schema (logical model)
+4. Implement schema.sql with DDL statements
+5. Create C# ETL console application
+6. Implement data loading process
 
