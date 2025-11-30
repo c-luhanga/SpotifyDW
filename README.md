@@ -10,7 +10,14 @@ A dimensional data warehouse for Spotify track analysis, built with SQL Server a
 - **Transactional Loading** - Ensures data consistency with rollback capability
 - **Scalable Architecture** - Clean separation of Extract, Transform, and Load phases
 
-## 📊 Data Warehouse Stats
+
+## 🌐 Web UI Features
+
+- **Autocomplete Search:** Artist and album search fields in the web UI now provide instant, relevant suggestions as you type, prioritizing exact, prefix, and contains matches, ordered by popularity.
+- **Data Explorer:** Browse and filter all artists and albums in the warehouse with a modern, responsive interface.
+- **Consistent Query Logic:** All report queries (not just search bars) use the same match prioritization for artist/album names.
+
+## 📈 Data Warehouse Stats
 
 - **2,551** unique artists
 - **5,317** albums
@@ -73,13 +80,19 @@ SpotifyDW/
 
 **That's it!** Your data warehouse is now populated and ready for analysis.
 
-## 📖 Documentation
+
+## 📚 Documentation
 
 - **[Architecture Guide](docs/architecture.md)** - Star schema design, ETL flow, and technical details
 - **[Runbook](docs/runbook.md)** - Complete setup instructions, troubleshooting, and sample queries
 - **[Design Notes](docs/notes.md)** - CSV analysis and dimensional modeling decisions
 
-## 🔍 Sample Queries
+## 🛠️ Error Handling & Troubleshooting
+
+- All SQL queries now use the correct column names (e.g., `TrackPopularity` instead of `Popularity`).
+- Backend endpoints handle errors gracefully and return valid JSON for the web UI.
+
+## 🔭 Sample Queries
 
 **Most popular tracks:**
 ```sql
@@ -102,8 +115,8 @@ ORDER BY d.Year DESC;
 **Most prolific artists:**
 ```sql
 SELECT TOP 10 a.ArtistName, 
-    COUNT(DISTINCT f.TrackKey) AS TrackCount,
-    MAX(a.ArtistFollowers) AS Followers
+   COUNT(DISTINCT f.TrackKey) AS TrackCount,
+   MAX(a.ArtistFollowers) AS Followers
 FROM FactTrack f
 JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
 GROUP BY a.ArtistName

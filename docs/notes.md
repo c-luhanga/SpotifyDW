@@ -20,12 +20,14 @@ Data warehouse project for Spotify data analysis.
 - `album_name` (string) - Name of the album
 - `album_release_date` (string/date) - Release date (YYYY-MM-DD format)
 
+
 **Metrics (Measures):**
 - `track_number` (int) - Track position on album
 - `track_popularity` (int) - Popularity score (0-100)
 - `track_duration_min` (float) - Track length in minutes (decimal format)
 - `artist_popularity` (int) - Artist popularity score (0-100)
 - `artist_followers` (int) - Number of artist followers on Spotify
+- **Note:** In the data warehouse, the correct column for popularity is `TrackPopularity` (not `Popularity`).
 
 **Categories (Attributes):**
 - `explicit` (bool) - Whether track has explicit content (TRUE/FALSE)
@@ -142,6 +144,7 @@ Central fact table storing track metrics and audio features.
 - `AlbumKey` (int, FK) - Reference to DimAlbum
 - `ReleaseDateKey` (int, FK) - Reference to DimDate
 
+
 **Measures (Metrics):**
 - `TrackPopularity` (int) - Popularity score at time of load (0-100)
 - `Energy` (float) - Audio feature (0.0-1.0) *[if available in source]*
@@ -153,6 +156,10 @@ Central fact table storing track metrics and audio features.
 - `Instrumentalness` (float) - Audio feature (0.0-1.0) *[if available]*
 - `Liveness` (float) - Audio feature (0.0-1.0) *[if available]*
 - `Speechiness` (float) - Audio feature (0.0-1.0) *[if available]*
+- **Note:** Audio features are included in the schema for future enrichment; not all source CSVs provide them.
+## Search & Query Logic
+
+- All artist and album search fields, as well as report queries, now prioritize exact, prefix, and contains matches, ordered by popularity for relevance.
 
 **Grain:** One row per unique track (SpotifyTrackId)
 

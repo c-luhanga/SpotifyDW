@@ -184,9 +184,9 @@ sqlcmd -S localhost -E -d SpotifyDW -Q "SELECT 'DimArtist' AS [Table], COUNT(*) 
 
 ```sql
 SELECT TOP 10 
-    a.ArtistName,
-    t.TrackName,
-    f.TrackPopularity
+  a.ArtistName,
+  t.TrackName,
+  f.TrackPopularity
 FROM FactTrack f
 JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
 JOIN DimTrack t ON f.TrackKey = t.TrackKey
@@ -197,9 +197,9 @@ ORDER BY f.TrackPopularity DESC;
 
 ```sql
 SELECT 
-    d.Year,
-    COUNT(*) AS TrackCount,
-    AVG(f.TrackPopularity) AS AvgPopularity
+  d.Year,
+  COUNT(*) AS TrackCount,
+  AVG(f.TrackPopularity) AS AvgPopularity
 FROM FactTrack f
 JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
 GROUP BY d.Year
@@ -210,15 +210,19 @@ ORDER BY d.Year DESC;
 
 ```sql
 SELECT TOP 10
-    a.ArtistName,
-    COUNT(DISTINCT f.TrackKey) AS TrackCount,
-    COUNT(DISTINCT f.AlbumKey) AS AlbumCount,
-    MAX(a.ArtistFollowers) AS Followers
+  a.ArtistName,
+  COUNT(DISTINCT f.TrackKey) AS TrackCount,
+  COUNT(DISTINCT f.AlbumKey) AS AlbumCount,
+  MAX(a.ArtistFollowers) AS Followers
 FROM FactTrack f
 JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
 GROUP BY a.ArtistName
 ORDER BY TrackCount DESC;
 ```
+## Web UI Usage
+
+- The web application provides autocomplete for artist and album search fields, prioritizing exact, prefix, and contains matches, ordered by popularity.
+- All report queries use the same match prioritization for consistent, relevant results.
 
 ## Maintenance
 
@@ -248,6 +252,13 @@ sqlcmd -S localhost -E -Q "RESTORE DATABASE SpotifyDW FROM DISK='C:\Backups\Spot
 ```
 
 ## Troubleshooting
+
+
+### Error: "Invalid column name 'Popularity'"
+
+**Solution:**
+- Ensure all queries use the correct column name: `TrackPopularity` (not `Popularity`).
+- Update any custom SQL or code to reference the correct column.
 
 ### Error: "Cannot connect to database"
 

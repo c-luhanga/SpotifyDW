@@ -86,14 +86,20 @@ Standard date dimension for time-based analysis.
 
 ## Fact Table
 
+
 ### FactTrack
 Central fact table storing track metrics and audio features.
 - **Grain:** One row per unique track (SpotifyTrackId)
 - **Foreign Keys:** TrackKey, ArtistKey, AlbumKey, ReleaseDateKey
 - **Measures:**
-  - TrackPopularity (0-100)
+  - **TrackPopularity** (0-100) *(correct column name; not 'Popularity')*
   - Audio features: Energy, Danceability, Valence, Loudness, Tempo, etc.
+    - *Note: Audio features are included for future enrichment; not all source CSVs provide them.*
 - **Type:** Snapshot fact table (single point in time)
+## Web UI & Query Logic
+
+- The web application provides autocomplete for artist and album search, prioritizing exact, prefix, and contains matches, ordered by popularity.
+- All report queries use the same match prioritization for consistent, relevant results.
 
 ## ETL Flow
 
