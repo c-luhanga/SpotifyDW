@@ -128,28 +128,25 @@ public class TransformService
     }
     
     /// <summary>
-    /// Builds DimTrack list by grouping by track ID
+    /// Builds DimTrack list by grouping by SpotifyTrackId (unique identifier)
     /// </summary>
     private List<DimTrack> BuildDimTrack(List<RawTrack> rawTracks)
     {
         var tracks = rawTracks
-            .GroupBy(t => new
-            {
-                TrackId = t.TrackId?.Trim() ?? string.Empty,
-                TrackName = NormalizeString(t.TrackName)
-            })
+            .Where(t => !string.IsNullOrWhiteSpace(t.TrackId))
+            .GroupBy(t => t.TrackId!.Trim())
             .Select((g, index) =>
             {
                 var firstTrack = g.First();
                 var trackKey = index + 1; // Temporary surrogate key
                 
-                _trackKeyMap[g.Key.TrackId] = trackKey;
+                _trackKeyMap[g.Key] = trackKey;
                 
                 return new DimTrack
                 {
                     TrackKey = trackKey,
-                    SpotifyTrackId = g.Key.TrackId,
-                    TrackName = g.Key.TrackName,
+                    SpotifyTrackId = g.Key,
+                    TrackName = NormalizeString(firstTrack.TrackName),
                     TrackNumber = firstTrack.TrackNumber,
                     TrackDurationMs = firstTrack.TrackDurationMs,
                     Explicit = firstTrack.Explicit,
