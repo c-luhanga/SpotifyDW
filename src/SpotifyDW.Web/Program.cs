@@ -21,6 +21,7 @@ builder.Services.AddScoped<TopTracksForArtistService>();
 builder.Services.AddScoped<PopularityTrendByYearService>();
 builder.Services.AddScoped<CompareTwoArtistsService>();
 builder.Services.AddScoped<AudioProfileService>();
+builder.Services.AddScoped<CustomReportBuilderService>();
 
 var app = builder.Build();
 
