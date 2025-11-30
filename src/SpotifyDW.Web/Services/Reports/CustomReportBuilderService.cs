@@ -98,9 +98,10 @@ public class CustomReportBuilderService
 
         sql.AppendLine("  AND (@MinPopularity IS NULL OR f.TrackPopularity >= @MinPopularity)");
 
+
         if (needsArtist)
         {
-            sql.AppendLine("  AND (@ArtistPattern IS NULL OR a.ArtistName LIKE '%' + @ArtistPattern + '%')");
+            sql.AppendLine("  AND (@ArtistPattern IS NULL OR LOWER(a.ArtistName) LIKE '%' + LOWER(@ArtistPattern) + '%')");
         }
 
         // GROUP BY clause
@@ -121,8 +122,23 @@ public class CustomReportBuilderService
                 break;
         }
 
+
         // ORDER BY clause
-        sql.AppendLine("ORDER BY AvgValue DESC");
+        if (needsArtist)
+        {
+            sql.AppendLine(@"ORDER BY
+                CASE
+                    WHEN LOWER(a.ArtistName) = LOWER(@ArtistPattern) THEN 1
+                    WHEN LOWER(a.ArtistName) LIKE LOWER(@ArtistPattern) + '%' THEN 2
+                    ELSE 3
+                END,
+                AvgValue DESC,
+                a.ArtistName");
+        }
+        else
+        {
+            sql.AppendLine("ORDER BY AvgValue DESC");
+        }
 
         return sql.ToString();
     }

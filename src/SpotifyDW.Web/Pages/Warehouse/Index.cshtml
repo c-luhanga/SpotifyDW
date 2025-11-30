@@ -1,0 +1,60 @@
+@page
+@model SpotifyDW.Web.Pages.Warehouse.IndexModel
+@{
+    ViewData["Title"] = "Warehouse Explorer";
+}
+
+<h1 class="mb-4">Warehouse Explorer</h1>
+<p>Browse and filter all artists and albums in your data warehouse.</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="artist" class="form-label">Artist</label>
+                <input type="text" class="form-control" id="artist" name="artist" value="@Model.Artist" placeholder="Artist name..." autocomplete="off" />
+            </div>
+            <div class="col-md-4">
+                <label for="album" class="form-label">Album</label>
+                <input type="text" class="form-control" id="album" name="album" value="@Model.Album" placeholder="Album name..." autocomplete="off" />
+            </div>
+            <div class="col-md-2">
+                <label for="year" class="form-label">Year</label>
+                <input type="number" class="form-control" id="year" name="year" value="@Model.Year" placeholder="e.g., 2020" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Results.Any())
+{
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Artist</th>
+                    <th>Album</th>
+                    <th>Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Results)
+                {
+                    <tr>
+                        <td>@row.ArtistName</td>
+                        <td>@row.AlbumName</td>
+                        <td>@row.Year</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted">Total: @Model.Results.Count record(s)</p>
+}
+else if (Model.HasSearched)
+{
+    <div class="alert alert-warning">No data found matching your filters.</div>
+}

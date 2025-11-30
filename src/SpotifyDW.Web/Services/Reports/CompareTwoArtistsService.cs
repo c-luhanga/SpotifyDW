@@ -14,6 +14,7 @@ public class CompareTwoArtistsService
 
     public async Task<ComparisonResult> CompareAsync(string artist1, string artist2, int? minYear = null, int? maxYear = null)
     {
+
         var query = @"
             SELECT 
                 a.ArtistName,
@@ -21,15 +22,20 @@ public class CompareTwoArtistsService
                 AVG(CAST(f.Energy AS FLOAT)) AS AvgEnergy,
                 AVG(CAST(f.Danceability AS FLOAT)) AS AvgDanceability,
                 AVG(CAST(f.Valence AS FLOAT)) AS AvgValence,
-                COUNT(*) AS TrackCount
+                COUNT(*) AS TrackCount,
+                CASE
+                    WHEN LOWER(a.ArtistName) = LOWER(@Artist1) OR LOWER(a.ArtistName) = LOWER(@Artist2) THEN 1
+                    WHEN LOWER(a.ArtistName) LIKE LOWER(@Artist1) + '%' OR LOWER(a.ArtistName) LIKE LOWER(@Artist2) + '%' THEN 2
+                    ELSE 3
+                END AS MatchRank
             FROM FactTrack f
             JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
             JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
-            WHERE (a.ArtistName LIKE '%' + @Artist1 + '%' OR a.ArtistName LIKE '%' + @Artist2 + '%')
+            WHERE (LOWER(a.ArtistName) LIKE '%' + LOWER(@Artist1) + '%' OR LOWER(a.ArtistName) LIKE '%' + LOWER(@Artist2) + '%')
               AND (@MinYear IS NULL OR d.Year >= @MinYear)
               AND (@MaxYear IS NULL OR d.Year <= @MaxYear)
             GROUP BY a.ArtistName
-            ORDER BY a.ArtistName";
+            ORDER BY MatchRank, AvgPopularity DESC, a.ArtistName";
 
         using var connection = _connectionFactory.CreateConnection();
         connection.Open();

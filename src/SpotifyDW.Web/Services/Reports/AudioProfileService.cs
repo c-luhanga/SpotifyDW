@@ -14,6 +14,7 @@ public class AudioProfileService
 
     public async Task<IEnumerable<ArtistProfileResult>> GetProfileAsync(string artistPattern, int? minYear = null, int? maxYear = null)
     {
+
         var query = @"
             SELECT 
                 a.ArtistName,
@@ -26,15 +27,20 @@ public class AudioProfileService
                 AVG(CAST(f.Liveness AS FLOAT)) AS AvgLiveness,
                 AVG(CAST(f.Speechiness AS FLOAT)) AS AvgSpeechiness,
                 AVG(CAST(f.Loudness AS FLOAT)) AS AvgLoudness,
-                COUNT(*) AS TrackCount
+                COUNT(*) AS TrackCount,
+                CASE
+                    WHEN LOWER(a.ArtistName) = LOWER(@ArtistPattern) THEN 1
+                    WHEN LOWER(a.ArtistName) LIKE LOWER(@ArtistPattern) + '%' THEN 2
+                    ELSE 3
+                END AS MatchRank
             FROM FactTrack f
             JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
             JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
-            WHERE a.ArtistName LIKE '%' + @ArtistPattern + '%'
+            WHERE LOWER(a.ArtistName) LIKE '%' + LOWER(@ArtistPattern) + '%'
               AND (@MinYear IS NULL OR d.Year >= @MinYear)
               AND (@MaxYear IS NULL OR d.Year <= @MaxYear)
             GROUP BY a.ArtistName
-            ORDER BY a.ArtistName";
+            ORDER BY MatchRank, TrackCount DESC, a.ArtistName";
 
         using var connection = _connectionFactory.CreateConnection();
         connection.Open();

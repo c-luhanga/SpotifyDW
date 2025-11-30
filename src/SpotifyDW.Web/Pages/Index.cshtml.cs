@@ -1,19 +1,21 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SpotifyDW.Web.Services;
 
 namespace SpotifyDW.Web.Pages;
 
 public class IndexModel : PageModel
 {
-    private readonly ILogger<IndexModel> _logger;
+    private readonly HomeStatsService _statsService;
 
-    public IndexModel(ILogger<IndexModel> logger)
+    public IndexModel(HomeStatsService statsService)
     {
-        _logger = logger;
+        _statsService = statsService;
     }
 
-    public void OnGet()
-    {
+    public HomeStatsService.HomeStats? Stats { get; set; }
 
+    public async Task OnGetAsync()
+    {
+        Stats = await _statsService.GetStatsAsync();
     }
 }

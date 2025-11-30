@@ -14,27 +14,107 @@
     </div>
 </div>
 
+@if (Model.Stats != null)
+{
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">🎤</div>
+                    <h2 class="display-5 fw-bold mb-0">@Model.Stats.TotalArtists.ToString("N0")</h2>
+                    <p class="text-muted mb-0">Total Artists</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">💿</div>
+                    <h2 class="display-5 fw-bold mb-0">@Model.Stats.TotalAlbums.ToString("N0")</h2>
+                    <p class="text-muted mb-0">Total Albums</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">🎵</div>
+                    <h2 class="display-5 fw-bold mb-0">@Model.Stats.TotalTracks.ToString("N0")</h2>
+                    <p class="text-muted mb-0">Total Tracks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card insight-card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="insight-icon me-3">📈</span>
+                        <h5 class="mb-0">Average Popularity</h5>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: @Model.Stats.AvgPopularity%;" 
+                             aria-valuenow="@Model.Stats.AvgPopularity" aria-valuemin="0" aria-valuemax="100">
+                            @Model.Stats.AvgPopularity.ToString("F1")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card insight-card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="insight-icon me-3">⭐</span>
+                        <h5 class="mb-0">Top Artist</h5>
+                    </div>
+                    <p class="h4 mb-0 text-primary">@Model.Stats.MostTracksArtist</p>
+                    <small class="text-muted">Most tracks in database</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card insight-card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="insight-icon me-3">📅</span>
+                        <h5 class="mb-0">Most Active Year</h5>
+                    </div>
+                    <p class="h4 mb-0 text-primary">@Model.Stats.MostActiveYear</p>
+                    <small class="text-muted">Highest release count</small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="row g-4">
     <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">📊 Popularity Analytics</h5>
+        <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">📊</div>
+                <h5 class="card-title">Popularity Analytics</h5>
                 <p class="card-text">Discover trending artists and tracks over time with detailed popularity metrics.</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">🎵 Audio Features</h5>
+        <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">🎵</div>
+                <h5 class="card-title">Audio Features</h5>
                 <p class="card-text">Dive deep into audio characteristics like energy, danceability, and valence.</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">⚡ Custom Reports</h5>
+        <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">⚡</div>
+                <h5 class="card-title">Custom Reports</h5>
                 <p class="card-text">Build your own queries and insights with our flexible report builder.</p>
             </div>
         </div>

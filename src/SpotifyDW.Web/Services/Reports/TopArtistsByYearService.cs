@@ -14,6 +14,7 @@ public class TopArtistsByYearService
 
     public async Task<IEnumerable<TopArtistResult>> GetTopArtistsAsync(int year, int limit = 10)
     {
+
         var query = @"
             SELECT TOP (@Limit)
                 a.ArtistName,
@@ -24,7 +25,7 @@ public class TopArtistsByYearService
             JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
             WHERE d.Year = @Year
             GROUP BY a.ArtistName
-            ORDER BY AvgPopularity DESC";
+            ORDER BY AvgPopularity DESC, a.ArtistName";
 
         using var connection = _connectionFactory.CreateConnection();
         connection.Open();

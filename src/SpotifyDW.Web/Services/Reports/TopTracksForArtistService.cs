@@ -14,18 +14,24 @@ public class TopTracksForArtistService
 
     public async Task<IEnumerable<TopTrackResult>> GetTopTracksAsync(string artistPattern, int limit = 20)
     {
+
         var query = @"
             SELECT TOP (@Limit)
                 t.TrackName,
                 a.ArtistName,
                 d.Year,
-                f.TrackPopularity AS Popularity
+                f.TrackPopularity AS Popularity,
+                CASE
+                    WHEN LOWER(a.ArtistName) = LOWER(@ArtistPattern) THEN 1
+                    WHEN LOWER(a.ArtistName) LIKE LOWER(@ArtistPattern) + '%' THEN 2
+                    ELSE 3
+                END AS MatchRank
             FROM FactTrack f
             JOIN DimTrack t ON f.TrackKey = t.TrackKey
             JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
             JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
-            WHERE a.ArtistName LIKE '%' + @ArtistPattern + '%'
-            ORDER BY f.TrackPopularity DESC";
+            WHERE LOWER(a.ArtistName) LIKE '%' + LOWER(@ArtistPattern) + '%'
+            ORDER BY MatchRank, f.TrackPopularity DESC, a.ArtistName, t.TrackName";
 
         using var connection = _connectionFactory.CreateConnection();
         connection.Open();
