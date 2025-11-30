@@ -1,55 +1,42 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">SpotifyDW</h1>
-    <p class="lead">Spotify Data Warehouse - Analytics & Reports</p>
+<div class="bg-light p-5 rounded-3 mb-4">
+    <div class="container-fluid py-5">
+        <h1 class="display-4 fw-bold">SpotifyDW – Spotify Analytics Warehouse</h1>
+        <p class="col-md-8 fs-5">
+            Explore track popularity trends, compare artists, and analyze audio profiles across thousands of songs in our comprehensive Spotify data warehouse.
+        </p>
+        <a class="btn btn-primary btn-lg" asp-page="/Reports/Index" role="button">View Reports Dashboard</a>
+    </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-md-12">
-        <h2>Available Reports</h2>
-        <div class="list-group mt-3">
-            <a href="/Reports/TopArtistsByYear" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Top Artists by Year</h5>
-                </div>
-                <p class="mb-1">View the top artists for a specific year based on average track popularity.</p>
-            </a>
-            <a href="/Reports/TopTracksForArtist" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Top Tracks for an Artist</h5>
-                </div>
-                <p class="mb-1">Search for an artist and view their most popular tracks.</p>
-            </a>
-            <a href="/Reports/PopularityTrendByYear" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Popularity Trend by Year</h5>
-                </div>
-                <p class="mb-1">Analyze average track popularity trends over time.</p>
-            </a>
-            <a href="/Reports/CompareTwoArtists" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Compare Two Artists</h5>
-                </div>
-                <p class="mb-1">Compare statistics and audio features between two artists.</p>
-            </a>
-            <a href="/Reports/AudioProfile" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Audio Profile of an Artist</h5>
-                </div>
-                <p class="mb-1">Explore the audio characteristics and features of an artist's music.</p>
-            </a>
-            <a href="/Reports/CustomReportBuilder" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Custom Report Builder</h5>
-                    <span class="badge bg-primary">Advanced</span>
-                </div>
-                <p class="mb-1">Build your own custom report by selecting a measure, grouping, and filters.</p>
-            </a>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">📊 Popularity Analytics</h5>
+                <p class="card-text">Discover trending artists and tracks over time with detailed popularity metrics.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">🎵 Audio Features</h5>
+                <p class="card-text">Dive deep into audio characteristics like energy, danceability, and valence.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">⚡ Custom Reports</h5>
+                <p class="card-text">Build your own queries and insights with our flexible report builder.</p>
+            </div>
         </div>
     </div>
 </div>

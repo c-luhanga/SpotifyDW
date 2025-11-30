@@ -1,0 +1,25 @@
+@page
+@model SpotifyDW.Web.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="text-center mb-4">
+    <h1 class="display-4">SpotifyDW Reports</h1>
+    <p class="lead">Select a report to explore your Spotify data warehouse</p>
+</div>
+
+<div class="row g-4">
+    @foreach (var report in Model.Reports)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@report.Title</h5>
+                    <p class="card-text flex-grow-1">@report.Description</p>
+                    <a asp-page="@report.PageName" class="btn btn-primary mt-auto">Open Report</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
