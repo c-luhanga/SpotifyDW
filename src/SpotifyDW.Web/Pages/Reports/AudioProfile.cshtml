@@ -1,0 +1,143 @@
+@page
+@model SpotifyDW.Web.Pages.Reports.AudioProfileModel
+@{
+    ViewData["Title"] = "Audio Profile of an Artist";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Explore the audio characteristics and features of an artist's music.</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="artistPattern" class="form-label">Artist Name</label>
+                    <input type="text" class="form-control" id="artistPattern" name="artistPattern" 
+                           value="@Model.ArtistPattern" placeholder="e.g., Billie Eilish" required />
+                </div>
+                <div class="col-md-3">
+                    <label for="minYear" class="form-label">Min Year (optional)</label>
+                    <input type="number" class="form-control" id="minYear" name="minYear" 
+                           value="@Model.MinYear" />
+                </div>
+                <div class="col-md-3">
+                    <label for="maxYear" class="form-label">Max Year (optional)</label>
+                    <input type="number" class="form-control" id="maxYear" name="maxYear" 
+                           value="@Model.MaxYear" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Analyze</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.ArtistPattern))
+{
+    @if (Model.Results.Any())
+    {
+        @foreach (var profile in Model.Results)
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4>@profile.ArtistName</h4>
+                    <small>Based on @profile.TrackCount track(s)</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Core Features</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Energy:</th>
+                                    <td class="text-end">@profile.AvgEnergy.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = calm, 1 = energetic)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Danceability:</th>
+                                    <td class="text-end">@profile.AvgDanceability.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = not danceable, 1 = danceable)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Valence:</th>
+                                    <td class="text-end">@profile.AvgValence.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = sad, 1 = happy)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Tempo:</th>
+                                    <td class="text-end">@profile.AvgTempo.ToString("F1") BPM</td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Additional Features</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Acousticness:</th>
+                                    <td class="text-end">@profile.AvgAcousticness.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = electric, 1 = acoustic)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Instrumentalness:</th>
+                                    <td class="text-end">@profile.AvgInstrumentalness.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = vocals, 1 = instrumental)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Liveness:</th>
+                                    <td class="text-end">@profile.AvgLiveness.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = studio, 1 = live)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Speechiness:</th>
+                                    <td class="text-end">@profile.AvgSpeechiness.ToString("F3")</td>
+                                    <td><small class="text-muted">(0 = music, 1 = speech)</small></td>
+                                </tr>
+                                <tr>
+                                    <th>Loudness:</th>
+                                    <td class="text-end">@profile.AvgLoudness.ToString("F2") dB</td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5>Profile Summary</h5>
+                        <div class="alert alert-info">
+                            @{
+                                string vibe = profile.AvgEnergy > 0.7 && profile.AvgDanceability > 0.7 ? "High-energy dance music" :
+                                              profile.AvgEnergy < 0.3 && profile.AvgAcousticness > 0.5 ? "Mellow acoustic" :
+                                              profile.AvgDanceability > 0.7 ? "Dance-oriented" :
+                                              profile.AvgEnergy > 0.7 ? "High-energy" :
+                                              profile.AvgAcousticness > 0.5 ? "Acoustic-leaning" : "Balanced mix";
+                                
+                                string mood = profile.AvgValence >= 0.8 ? "Very Positive/Happy" :
+                                              profile.AvgValence >= 0.6 ? "Positive/Upbeat" :
+                                              profile.AvgValence >= 0.4 ? "Neutral" :
+                                              profile.AvgValence >= 0.2 ? "Melancholic/Somber" : "Dark/Sad";
+                            }
+                            <strong>Overall Vibe:</strong> @vibe<br />
+                            <strong>Mood:</strong> @mood
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        @if (Model.Results.Count > 1)
+        {
+            <div class="alert alert-info">
+                <strong>Note:</strong> @Model.Results.Count artists matched your search.
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            No data found for artist matching "@Model.ArtistPattern".
+        </div>
+    }
+}

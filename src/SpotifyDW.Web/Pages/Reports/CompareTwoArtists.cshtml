@@ -1,0 +1,199 @@
+@page
+@model SpotifyDW.Web.Pages.Reports.CompareTwoArtistsModel
+@{
+    ViewData["Title"] = "Compare Two Artists";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Compare statistics and audio features between two artists.</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="artist1" class="form-label">First Artist</label>
+                    <input type="text" class="form-control" id="artist1" name="artist1" 
+                           value="@Model.Artist1" placeholder="e.g., Drake" required />
+                </div>
+                <div class="col-md-6">
+                    <label for="artist2" class="form-label">Second Artist</label>
+                    <input type="text" class="form-control" id="artist2" name="artist2" 
+                           value="@Model.Artist2" placeholder="e.g., The Weeknd" required />
+                </div>
+            </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label for="minYear" class="form-label">Min Year (optional)</label>
+                    <input type="number" class="form-control" id="minYear" name="minYear" 
+                           value="@Model.MinYear" placeholder="2000" />
+                </div>
+                <div class="col-md-4">
+                    <label for="maxYear" class="form-label">Max Year (optional)</label>
+                    <input type="number" class="form-control" id="maxYear" name="maxYear" 
+                           value="@Model.MaxYear" placeholder="2023" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Compare</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.ComparisonResult != null)
+{
+    var artist1 = Model.ComparisonResult.Artist1;
+    var artist2 = Model.ComparisonResult.Artist2;
+
+    @if (artist1 != null || artist2 != null)
+    {
+        <div class="row">
+            @if (artist1 != null)
+            {
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5>@artist1.ArtistName</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Track Count:</th>
+                                    <td class="text-end">@artist1.TrackCount</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Popularity:</th>
+                                    <td class="text-end">@artist1.AvgPopularity.ToString("F2")</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Energy:</th>
+                                    <td class="text-end">@artist1.AvgEnergy.ToString("F3")</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Danceability:</th>
+                                    <td class="text-end">@artist1.AvgDanceability.ToString("F3")</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Valence:</th>
+                                    <td class="text-end">@artist1.AvgValence.ToString("F3")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-6">
+                    <div class="alert alert-warning">No data found for "@Model.Artist1"</div>
+                </div>
+            }
+
+            @if (artist2 != null)
+            {
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5>@artist2.ArtistName</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Track Count:</th>
+                                    <td class="text-end">@artist2.TrackCount</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Popularity:</th>
+                                    <td class="text-end">@artist2.AvgPopularity.ToString("F2")</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Energy:</th>
+                                    <td class="text-end">@artist2.AvgEnergy.ToString("F3")</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Danceability:</th>
+                                    <td class="text-end">@artist2.AvgDanceability.ToString("F3")</td>
+                                </tr>
+                                <tr>
+                                    <th>Avg Valence:</th>
+                                    <td class="text-end">@artist2.AvgValence.ToString("F3")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-6">
+                    <div class="alert alert-warning">No data found for "@Model.Artist2"</div>
+                </div>
+            }
+        </div>
+
+        @if (artist1 != null && artist2 != null)
+        {
+            <div class="card mt-4">
+                <div class="card-header bg-dark text-white">
+                    <h5>Comparison Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Winner</th>
+                                <th class="text-end">Difference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var popDiff = Math.Abs(artist1.AvgPopularity - artist2.AvgPopularity);
+                                var popWinner = artist1.AvgPopularity > artist2.AvgPopularity ? artist1.ArtistName : artist2.ArtistName;
+                            }
+                            <tr>
+                                <td>Popularity</td>
+                                <td><strong>@popWinner</strong></td>
+                                <td class="text-end">@popDiff.ToString("F2")</td>
+                            </tr>
+                            @{
+                                var energyDiff = Math.Abs(artist1.AvgEnergy - artist2.AvgEnergy);
+                                var energyWinner = artist1.AvgEnergy > artist2.AvgEnergy ? artist1.ArtistName : artist2.ArtistName;
+                            }
+                            <tr>
+                                <td>Energy</td>
+                                <td><strong>@energyWinner</strong></td>
+                                <td class="text-end">@energyDiff.ToString("F3")</td>
+                            </tr>
+                            @{
+                                var danceDiff = Math.Abs(artist1.AvgDanceability - artist2.AvgDanceability);
+                                var danceWinner = artist1.AvgDanceability > artist2.AvgDanceability ? artist1.ArtistName : artist2.ArtistName;
+                            }
+                            <tr>
+                                <td>Danceability</td>
+                                <td><strong>@danceWinner</strong></td>
+                                <td class="text-end">@danceDiff.ToString("F3")</td>
+                            </tr>
+                            @{
+                                var valenceDiff = Math.Abs(artist1.AvgValence - artist2.AvgValence);
+                                var valenceWinner = artist1.AvgValence > artist2.AvgValence ? artist1.ArtistName : artist2.ArtistName;
+                            }
+                            <tr>
+                                <td>Valence (Positivity)</td>
+                                <td><strong>@valenceWinner</strong></td>
+                                <td class="text-end">@valenceDiff.ToString("F3")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            No data found for artists matching "@Model.Artist1" or "@Model.Artist2".
+        </div>
+    }
+}
