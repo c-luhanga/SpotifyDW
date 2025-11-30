@@ -1,0 +1,70 @@
+@page
+@model SpotifyDW.Web.Pages.Reports.TopArtistsByYearModel
+@{
+    ViewData["Title"] = "Top Artists by Year";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>View the top artists for a specific year based on average track popularity.</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="year" class="form-label">Year</label>
+                    <input type="number" class="form-control" id="year" name="year" 
+                           value="@Model.Year" placeholder="e.g., 2020" required />
+                </div>
+                <div class="col-md-4">
+                    <label for="limit" class="form-label">Number of Artists</label>
+                    <input type="number" class="form-control" id="limit" name="limit" 
+                           value="@Model.Limit" min="1" max="100" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Show Results</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Year.HasValue)
+{
+    @if (Model.Results.Any())
+    {
+        <h3>Top @Model.Limit Artists for @Model.Year</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Artist</th>
+                        <th class="text-end">Avg Popularity</th>
+                        <th class="text-end">Track Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int rank = 1; }
+                    @foreach (var result in Model.Results)
+                    {
+                        <tr>
+                            <td>@rank</td>
+                            <td>@result.ArtistName</td>
+                            <td class="text-end">@result.AvgPopularity.ToString("F2")</td>
+                            <td class="text-end">@result.TrackCount</td>
+                        </tr>
+                        rank++;
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted">Total: @Model.Results.Count artist(s)</p>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No artists found for year @Model.Year.
+        </div>
+    }
+}
