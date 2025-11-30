@@ -1,0 +1,69 @@
+@page
+@model SpotifyDW.Web.Pages.Reports.TopTracksForArtistModel
+@{
+    ViewData["Title"] = "Top Tracks for an Artist";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Search for an artist and view their most popular tracks.</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="artistPattern" class="form-label">Artist Name</label>
+                    <input type="text" class="form-control" id="artistPattern" name="artistPattern" 
+                           value="@Model.ArtistPattern" placeholder="e.g., Taylor Swift" required />
+                    <small class="form-text text-muted">Enter full or partial artist name</small>
+                </div>
+                <div class="col-md-3">
+                    <label for="limit" class="form-label">Number of Tracks</label>
+                    <input type="number" class="form-control" id="limit" name="limit" 
+                           value="@Model.Limit" min="1" max="100" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.ArtistPattern))
+{
+    @if (Model.Results.Any())
+    {
+        <h3>Top @Model.Limit Tracks for "@Model.ArtistPattern"</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Track Name</th>
+                        <th>Artist Name</th>
+                        <th class="text-center">Year</th>
+                        <th class="text-end">Popularity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var result in Model.Results)
+                    {
+                        <tr>
+                            <td>@result.TrackName</td>
+                            <td>@result.ArtistName</td>
+                            <td class="text-center">@result.Year</td>
+                            <td class="text-end">@result.Popularity</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted">Total: @Model.Results.Count track(s)</p>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No tracks found for artist matching "@Model.ArtistPattern".
+        </div>
+    }
+}
