@@ -88,24 +88,21 @@ public class TransformService
     }
     
     /// <summary>
-    /// Builds DimAlbum list by grouping by (AlbumName, ArtistName)
+    /// Builds DimAlbum list by grouping by SpotifyAlbumId (unique identifier)
     /// </summary>
     private List<DimAlbum> BuildDimAlbum(List<RawTrack> rawTracks)
     {
         var albums = rawTracks
-            .GroupBy(t => new 
-            { 
-                AlbumId = t.AlbumId?.Trim() ?? string.Empty,
-                AlbumName = NormalizeString(t.AlbumName),
-                ArtistName = NormalizeString(t.ArtistName)
-            })
+            .Where(t => !string.IsNullOrWhiteSpace(t.AlbumId))
+            .GroupBy(t => t.AlbumId!.Trim())
             .Select((g, index) =>
             {
                 var firstTrack = g.First();
                 var albumKey = index + 1; // Temporary surrogate key
-                var artistKey = _artistKeyMap.GetValueOrDefault(g.Key.ArtistName, 0);
+                var artistName = NormalizeString(firstTrack.ArtistName);
+                var artistKey = _artistKeyMap.GetValueOrDefault(artistName, 0);
                 
-                var albumMapKey = $"{g.Key.AlbumId}|{g.Key.AlbumName}|{g.Key.ArtistName}";
+                var albumMapKey = $"{g.Key}|{NormalizeString(firstTrack.AlbumName)}|{artistName}";
                 _albumKeyMap[albumMapKey] = albumKey;
                 
                 // Parse release date
@@ -114,8 +111,8 @@ public class TransformService
                 return new DimAlbum
                 {
                     AlbumKey = albumKey,
-                    SpotifyAlbumId = g.Key.AlbumId,
-                    AlbumName = g.Key.AlbumName,
+                    SpotifyAlbumId = g.Key,
+                    AlbumName = NormalizeString(firstTrack.AlbumName),
                     ArtistKey = artistKey,
                     AlbumType = firstTrack.AlbumType?.Trim(),
                     AlbumTotalTracks = firstTrack.AlbumTotalTracks,
