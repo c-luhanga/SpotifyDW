@@ -41,11 +41,25 @@ try
     // EXTRACT phase
     var extractService = new ExtractService();
     var allTracks = extractService.ExtractTracks(spotifyFullPath, trackFullPath);
-    
     Console.WriteLine("\n✓ Extract phase completed successfully!");
     
-    // TODO: TRANSFORM phase (next step)
-    // TODO: LOAD phase (next step)
+    // TRANSFORM phase
+    var transformService = new TransformService();
+    var transformResult = transformService.TransformData(allTracks);
+    Console.WriteLine("\n✓ Transform phase completed successfully!");
+    
+    // Display summary
+    Console.WriteLine("\n=== TRANSFORMATION SUMMARY ===");
+    Console.WriteLine($"  Artists: {transformResult.Artists.Count}");
+    Console.WriteLine($"  Albums: {transformResult.Albums.Count}");
+    Console.WriteLine($"  Tracks: {transformResult.Tracks.Count}");
+    Console.WriteLine($"  Dates: {transformResult.Dates.Count}");
+    Console.WriteLine($"  Fact Records: {transformResult.Facts.Count}");
+    
+    // LOAD phase
+    var loadService = new LoadService(connectionString!);
+    loadService.LoadData(transformResult);
+    Console.WriteLine("\n✓ Load phase completed successfully!");
 }
 catch (Exception ex)
 {
