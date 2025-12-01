@@ -9,7 +9,7 @@ A dimensional data warehouse for Spotify track analysis, built with SQL Server a
 - **Data Quality** - Normalization, deduplication, and referential integrity enforcement
 - **Transactional Loading** - Ensures data consistency with rollback capability
 - **Scalable Architecture** - Clean separation of Extract, Transform, and Load phases
-
+- **Type 2 SCD (Slowly Changing Dimension)** - Full support for historical tracking of artist attribute changes in `DimArtist` (EffectiveFrom, EffectiveTo, IsCurrent columns, SCD2 ETL logic, and reporting)
 
 ## 🌐 Web UI Features
 
@@ -35,21 +35,26 @@ SpotifyDW/
 ├── db/
 │   └── schema.sql                 # Database creation script
 ├── src/
-│   └── SpotifyDW.ETL/             # C# ETL console application
-│       ├── Models/                # Data models (Raw, Dim, Fact)
-│       ├── Services/              # ETL service classes
-│       └── appsettings.json       # Configuration
+│   ├── SpotifyDW.ETL/             # C# ETL console application (ETL pipeline)
+│   │   ├── Models/                # Data models (Raw, Dim, Fact)
+│   │   ├── Services/              # ETL service classes
+│   │   └── appsettings.json       # Configuration
+│   └── SpotifyDW.Web/             # ASP.NET Core Razor Pages web app
+│       ├── Pages/                 # Razor Pages (UI, reports, explorer)
+│       ├── Services/              # Web service classes (reporting, stats)
+│       ├── wwwroot/               # Static files (CSS, JS, images)
+│       └── appsettings.json       # Web app configuration
 └── docs/
-    ├── architecture.md            # Star schema design & ETL flow
-    ├── runbook.md                 # Setup & operation guide
-    └── notes.md                   # CSV analysis & requirements
+   ├── architecture.md            # Star schema design & ETL flow
+   ├── runbook.md                 # Setup & operation guide
+   └── notes.md                   # CSV analysis & requirements
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - SQL Server (2019+)
-- .NET SDK (10.0+)
+- .NET SDK (8.0+)
 - sqlcmd (SQL Server command-line tools)
 
 ### Setup (5 minutes)
@@ -126,7 +131,7 @@ ORDER BY TrackCount DESC;
 ## 🛠️ Technology Stack
 
 - **Database:** SQL Server
-- **Language:** C# (.NET 10.0)
+- **Language:** C# (.NET 8.0)
 - **Libraries:**
   - CsvHelper - CSV parsing
   - Dapper - Data access
@@ -136,7 +141,6 @@ ORDER BY TrackCount DESC;
 ## 🔮 Future Enhancements
 
 - **Incremental Loads** - Load only new/changed records instead of full refresh
-- **Type 2 SCD** - Track historical changes in artist popularity over time
 - **Audio Features** - Integrate Spotify API for advanced music analysis
 - **Power BI Dashboards** - Pre-built visualizations for business insights
 - **Automated Scheduling** - Daily ETL runs with error notifications
