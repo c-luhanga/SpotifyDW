@@ -43,26 +43,26 @@ public class AudioProfileReport : IReport
 
         // Execute query
         var query = @"
-            SELECT 
-                a.ArtistName,
-                AVG(CAST(f.Energy AS FLOAT)) AS AvgEnergy,
-                AVG(CAST(f.Danceability AS FLOAT)) AS AvgDanceability,
-                AVG(CAST(f.Valence AS FLOAT)) AS AvgValence,
-                AVG(CAST(f.Tempo AS FLOAT)) AS AvgTempo,
-                AVG(CAST(f.Acousticness AS FLOAT)) AS AvgAcousticness,
-                AVG(CAST(f.Instrumentalness AS FLOAT)) AS AvgInstrumentalness,
-                AVG(CAST(f.Liveness AS FLOAT)) AS AvgLiveness,
-                AVG(CAST(f.Speechiness AS FLOAT)) AS AvgSpeechiness,
-                AVG(CAST(f.Loudness AS FLOAT)) AS AvgLoudness,
-                COUNT(*) AS TrackCount
-            FROM FactTrack f
-            JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
-            JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
-            WHERE a.ArtistName LIKE '%' + @ArtistName + '%'
-              AND (@MinYear IS NULL OR d.Year >= @MinYear)
-              AND (@MaxYear IS NULL OR d.Year <= @MaxYear)
-            GROUP BY a.ArtistName
-            ORDER BY a.ArtistName";
+                        SELECT 
+                                a.ArtistName,
+                                AVG(CAST(f.Energy AS FLOAT)) AS AvgEnergy,
+                                AVG(CAST(f.Danceability AS FLOAT)) AS AvgDanceability,
+                                AVG(CAST(f.Valence AS FLOAT)) AS AvgValence,
+                                AVG(CAST(f.Tempo AS FLOAT)) AS AvgTempo,
+                                AVG(CAST(f.Acousticness AS FLOAT)) AS AvgAcousticness,
+                                AVG(CAST(f.Instrumentalness AS FLOAT)) AS AvgInstrumentalness,
+                                AVG(CAST(f.Liveness AS FLOAT)) AS AvgLiveness,
+                                AVG(CAST(f.Speechiness AS FLOAT)) AS AvgSpeechiness,
+                                AVG(CAST(f.Loudness AS FLOAT)) AS AvgLoudness,
+                                COUNT(*) AS TrackCount
+                        FROM FactTrack f
+                        JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1
+                        JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
+                        WHERE a.ArtistName LIKE '%' + @ArtistName + '%'
+                            AND (@MinYear IS NULL OR d.Year >= @MinYear)
+                            AND (@MaxYear IS NULL OR d.Year <= @MaxYear)
+                        GROUP BY a.ArtistName
+                        ORDER BY a.ArtistName";
 
         var results = await connection.QueryAsync<ArtistProfile>(query, 
             new { ArtistName = artistName, MinYear = minYear, MaxYear = maxYear });

@@ -52,21 +52,21 @@ public class CompareTwoArtistsReport : IReport
 
         // Execute query - aggregate stats per artist
         var query = @"
-            SELECT 
-                a.ArtistName,
-                AVG(CAST(f.TrackPopularity AS FLOAT)) AS AvgPopularity,
-                AVG(CAST(f.Energy AS FLOAT)) AS AvgEnergy,
-                AVG(CAST(f.Danceability AS FLOAT)) AS AvgDanceability,
-                AVG(CAST(f.Valence AS FLOAT)) AS AvgValence,
-                COUNT(*) AS TrackCount
-            FROM FactTrack f
-            JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
-            JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
-            WHERE (a.ArtistName LIKE '%' + @Artist1 + '%' OR a.ArtistName LIKE '%' + @Artist2 + '%')
-              AND (@MinYear IS NULL OR d.Year >= @MinYear)
-              AND (@MaxYear IS NULL OR d.Year <= @MaxYear)
-            GROUP BY a.ArtistName
-            ORDER BY a.ArtistName";
+                        SELECT 
+                                a.ArtistName,
+                                AVG(CAST(f.TrackPopularity AS FLOAT)) AS AvgPopularity,
+                                AVG(CAST(f.Energy AS FLOAT)) AS AvgEnergy,
+                                AVG(CAST(f.Danceability AS FLOAT)) AS AvgDanceability,
+                                AVG(CAST(f.Valence AS FLOAT)) AS AvgValence,
+                                COUNT(*) AS TrackCount
+                        FROM FactTrack f
+                        JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1
+                        JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
+                        WHERE (a.ArtistName LIKE '%' + @Artist1 + '%' OR a.ArtistName LIKE '%' + @Artist2 + '%')
+                            AND (@MinYear IS NULL OR d.Year >= @MinYear)
+                            AND (@MaxYear IS NULL OR d.Year <= @MaxYear)
+                        GROUP BY a.ArtistName
+                        ORDER BY a.ArtistName";
 
         var results = await connection.QueryAsync<ArtistStats>(query, 
             new { Artist1 = artist1, Artist2 = artist2, MinYear = minYear, MaxYear = maxYear });

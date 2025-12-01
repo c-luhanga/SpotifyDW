@@ -191,7 +191,7 @@ public class CustomReportBuilderReport : IReport
         bool needsDate = grouping == GroupingType.Year || grouping == GroupingType.ArtistYear;
 
         if (needsArtist)
-            sql.AppendLine("JOIN DimArtist a ON f.ArtistKey = a.ArtistKey");
+            sql.AppendLine("JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1");
         if (needsAlbum)
         {
             sql.AppendLine("JOIN DimAlbum al ON f.AlbumKey = al.AlbumKey");

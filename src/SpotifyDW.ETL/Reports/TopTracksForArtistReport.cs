@@ -41,7 +41,7 @@ public class TopTracksForArtistReport : IReport
                 f.TrackPopularity AS Popularity
             FROM FactTrack f
             JOIN DimTrack t ON f.TrackKey = t.TrackKey
-            JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
+            JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1
             JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
             WHERE a.ArtistName LIKE '%' + @ArtistName + '%'
             ORDER BY f.TrackPopularity DESC";

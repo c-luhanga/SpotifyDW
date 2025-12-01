@@ -69,30 +69,66 @@ public class LoadService
     private Dictionary<int, int> LoadDimArtist(SqlConnection connection, SqlTransaction transaction, List<DimArtist> artists)
     {
         var keyMap = new Dictionary<int, int>();
-        
-        const string sql = @"
-            INSERT INTO dbo.DimArtist (ArtistName, ArtistPopularity, ArtistFollowers, ArtistGenres, CreatedDate, ModifiedDate)
-            OUTPUT INSERTED.ArtistKey, INSERTED.ArtistName
-            VALUES (@ArtistName, @ArtistPopularity, @ArtistFollowers, @ArtistGenres, @CreatedDate, @ModifiedDate)";
-        
+        var now = DateTime.Now;
+        var maxDate = new DateTime(9999, 12, 31);
+
         foreach (var artist in artists)
         {
-            var result = connection.QuerySingle<(int ArtistKey, string ArtistName)>(
-                sql,
-                new
+            // Check for existing current row by business key (ArtistName)
+            var existing = connection.QueryFirstOrDefault<DimArtist>(
+                "SELECT TOP 1 * FROM dbo.DimArtist WHERE ArtistName = @ArtistName AND IsCurrent = 1",
+                new { artist.ArtistName }, transaction);
+
+            bool needsInsert = false;
+            if (existing == null)
+            {
+                // No current row, must insert
+                needsInsert = true;
+            }
+            else
+            {
+                // Compare SCD attributes (popularity, followers, genres)
+                if (existing.ArtistPopularity != artist.ArtistPopularity ||
+                    existing.ArtistFollowers != artist.ArtistFollowers ||
+                    existing.ArtistGenres != artist.ArtistGenres)
                 {
-                    artist.ArtistName,
-                    artist.ArtistPopularity,
-                    artist.ArtistFollowers,
-                    artist.ArtistGenres,
-                    artist.CreatedDate,
-                    artist.ModifiedDate
-                },
-                transaction);
-            
-            keyMap[artist.ArtistKey] = result.ArtistKey;
+                    // Expire old row
+                    connection.Execute(
+                        "UPDATE dbo.DimArtist SET EffectiveTo = @Now, IsCurrent = 0, ModifiedDate = @Now WHERE ArtistKey = @ArtistKey",
+                        new { Now = now, ArtistKey = existing.ArtistKey }, transaction);
+                    needsInsert = true;
+                }
+            }
+
+            if (needsInsert)
+            {
+                // Insert new current row
+                var result = connection.QuerySingle<(int ArtistKey, string ArtistName)>(
+                    @"INSERT INTO dbo.DimArtist (ArtistName, ArtistPopularity, ArtistFollowers, ArtistGenres, CreatedDate, ModifiedDate, EffectiveFrom, EffectiveTo, IsCurrent)
+                        OUTPUT INSERTED.ArtistKey, INSERTED.ArtistName
+                        VALUES (@ArtistName, @ArtistPopularity, @ArtistFollowers, @ArtistGenres, @CreatedDate, @ModifiedDate, @EffectiveFrom, @EffectiveTo, @IsCurrent)",
+                    new
+                    {
+                        artist.ArtistName,
+                        artist.ArtistPopularity,
+                        artist.ArtistFollowers,
+                        artist.ArtistGenres,
+                        CreatedDate = now,
+                        ModifiedDate = now,
+                        EffectiveFrom = now,
+                        EffectiveTo = maxDate,
+                        IsCurrent = true
+                    },
+                    transaction);
+                keyMap[artist.ArtistKey] = result.ArtistKey;
+            }
+            else if (existing != null)
+            {
+                // No change, use existing current row
+                keyMap[artist.ArtistKey] = existing.ArtistKey;
+            }
         }
-        
+
         return keyMap;
     }
     

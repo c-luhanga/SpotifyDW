@@ -39,7 +39,7 @@ public class TopArtistsByYearReport : IReport
                 AVG(CAST(f.TrackPopularity AS FLOAT)) AS AvgPopularity,
                 COUNT(*) AS TrackCount
             FROM FactTrack f
-            JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
+            JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1
             JOIN DimDate d ON f.ReleaseDateKey = d.DateKey
             WHERE d.Year = @Year
             GROUP BY a.ArtistName

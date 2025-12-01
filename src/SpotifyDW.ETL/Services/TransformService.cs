@@ -61,15 +61,17 @@ public class TransformService
     /// </summary>
     private List<DimArtist> BuildDimArtist(List<RawTrack> rawTracks)
     {
+        var now = DateTime.Now;
+        var maxDate = new DateTime(9999, 12, 31);
         var artists = rawTracks
             .GroupBy(t => NormalizeString(t.ArtistName))
-            .Select((g, index) => 
+            .Select((g, index) =>
             {
                 var firstTrack = g.First();
                 var artistKey = index + 1; // Temporary surrogate key
-                
+
                 _artistKeyMap[g.Key] = artistKey;
-                
+
                 return new DimArtist
                 {
                     ArtistKey = artistKey,
@@ -77,13 +79,16 @@ public class TransformService
                     ArtistPopularity = g.Max(t => t.ArtistPopularity),
                     ArtistFollowers = g.Max(t => t.ArtistFollowers),
                     ArtistGenres = NormalizeGenres(firstTrack.ArtistGenres),
-                    CreatedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now
+                    CreatedDate = now,
+                    ModifiedDate = now,
+                    EffectiveFrom = now,
+                    EffectiveTo = maxDate,
+                    IsCurrent = true
                 };
             })
             .OrderBy(a => a.ArtistName)
             .ToList();
-            
+
         return artists;
     }
     
