@@ -81,14 +81,19 @@ Data warehouse project for Spotify data analysis.
 ### Dimension Tables
 
 #### DimArtist
-Stores unique artist information.
+
+Stores unique artist information with historical tracking (Type 2 SCD).
 - `ArtistKey` (int, PK) - Surrogate key
 - `ArtistName` (nvarchar) - Artist name
-- `ArtistPopularity` (int) - Current popularity score (0-100)
+- `ArtistPopularity` (int) - Popularity score (0-100)
 - `ArtistFollowers` (bigint) - Number of followers
 - `ArtistGenres` (nvarchar) - Comma-separated or JSON list of genres
+- `EffectiveFrom` (datetime2) - SCD2 start date
+- `EffectiveTo` (datetime2) - SCD2 end date
+- `IsCurrent` (bit) - SCD2 current flag
 
 **Business Key:** ArtistName (no artist_id in source data)
+**Type:** Type 2 SCD (tracks history; new row on change)
 
 ---
 
@@ -159,7 +164,9 @@ Central fact table storing track metrics and audio features.
 - **Note:** Audio features are included in the schema for future enrichment; not all source CSVs provide them.
 ## Search & Query Logic
 
+
 - All artist and album search fields, as well as report queries, now prioritize exact, prefix, and contains matches, ordered by popularity for relevance.
+- All reporting and fact queries join to DimArtist with `IsCurrent = 1` to ensure only the current version of each artist is used.
 
 **Grain:** One row per unique track (SpotifyTrackId)
 

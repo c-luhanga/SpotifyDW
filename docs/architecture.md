@@ -61,10 +61,11 @@ SpotifyDW is a dimensional data warehouse built using the Star Schema design pat
 ## Dimension Tables
 
 ### DimArtist
-Stores unique artist information.
+Stores unique artist information with historical tracking (Type 2 SCD).
 - **Business Key:** ArtistName
 - **Attributes:** Popularity, Followers, Genres
-- **Type:** Type 1 SCD (overwrites)
+- **SCD2 Columns:** EffectiveFrom, EffectiveTo, IsCurrent
+- **Type:** Type 2 SCD (tracks history; new row on change)
 
 ### DimAlbum
 Stores unique album information with artist relationships.
@@ -100,6 +101,7 @@ Central fact table storing track metrics and audio features.
 
 - The web application provides autocomplete for artist and album search, prioritizing exact, prefix, and contains matches, ordered by popularity.
 - All report queries use the same match prioritization for consistent, relevant results.
+- All reporting and fact queries join to DimArtist with `IsCurrent = 1` to ensure only the current version of each artist is used.
 
 ## ETL Flow
 
@@ -237,7 +239,7 @@ Transaction Commit
 
 ## Technology Stack
 
-- **Language:** C# (.NET 10.0)
+- **Language:** C# (.NET 8.0)
 - **Database:** SQL Server
 - **ETL Framework:** Custom console application
 - **Libraries:**

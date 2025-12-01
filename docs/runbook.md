@@ -6,7 +6,7 @@
 - **SQL Server** (2019 or later recommended)
   - SQL Server Express is sufficient for development
   - Ensure Windows Authentication is enabled
-- **.NET SDK** (10.0 or later)
+- **.NET SDK** (8.0 or later)
   - Download from: https://dotnet.microsoft.com/download
 - **Git** (for cloning the repository)
 - **sqlcmd** (SQL Server command-line tools)
@@ -58,6 +58,7 @@ sqlcmd -S localhost -E -i schema.sql
 This will:
 1. Create the `SpotifyDW` database
 2. Create all dimension tables (DimArtist, DimAlbum, DimTrack, DimDate)
+  - `DimArtist` supports Type 2 SCD (historical tracking with EffectiveFrom, EffectiveTo, IsCurrent columns)
 3. Create the fact table (FactTrack)
 4. Create indexes for query performance
 
@@ -188,7 +189,7 @@ SELECT TOP 10
   t.TrackName,
   f.TrackPopularity
 FROM FactTrack f
-JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
+JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1
 JOIN DimTrack t ON f.TrackKey = t.TrackKey
 ORDER BY f.TrackPopularity DESC;
 ```
@@ -215,7 +216,7 @@ SELECT TOP 10
   COUNT(DISTINCT f.AlbumKey) AS AlbumCount,
   MAX(a.ArtistFollowers) AS Followers
 FROM FactTrack f
-JOIN DimArtist a ON f.ArtistKey = a.ArtistKey
+JOIN DimArtist a ON f.ArtistKey = a.ArtistKey AND a.IsCurrent = 1
 GROUP BY a.ArtistName
 ORDER BY TrackCount DESC;
 ```
@@ -229,6 +230,8 @@ ORDER BY TrackCount DESC;
 ### Re-running the ETL
 
 If you need to reload data (full refresh):
+
+**Note:** The ETL and reporting logic for `DimArtist` uses Type 2 SCD. Old rows are expired (IsCurrent=0, EffectiveTo set) and new rows are inserted on attribute change. All queries use only current rows (IsCurrent=1).
 
 ```powershell
 # 1. Clear existing data
